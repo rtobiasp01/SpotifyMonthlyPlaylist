@@ -2,8 +2,11 @@ import "dotenv/config";
 
 import express from "express";
 import session from "express-session";
+import swaggerUi from "swagger-ui-express";
 
 import { AuthController } from "./controllers/AuthController.js";
+
+import { openapi } from "./docs/openapi.js";
 
 import { SpotifyController } from "./controllers/SpotifyController.js";
 
@@ -112,6 +115,20 @@ app.post("/auth/logout", authController.logout);
 app.get("/api/me", requireSpotifyAuth, spotifyController.me);
 
 app.get("/api/top-tracks", requireSpotifyAuth, spotifyController.topTracks);
+
+app.get("/api-docs/openapi.json", (_req, res) => {
+  res.json(openapi);
+});
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(undefined, {
+    swaggerOptions: {
+      url: "/api-docs/openapi.json",
+    },
+  }),
+);
 
 app.use(errorHandler);
 
