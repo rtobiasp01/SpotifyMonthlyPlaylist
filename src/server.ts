@@ -346,6 +346,8 @@ app.use(
 
 app.use(errorHandler);
 
-app.listen(port, "127.0.0.1", () => {
-  console.log(`Server running at http://127.0.0.1:${port}`);
+const host = process.env.HOST ?? "0.0.0.0";
+
+app.listen(port, host, () => {
+  console.log(`Server running at http://${host}:${port}`);
 });
