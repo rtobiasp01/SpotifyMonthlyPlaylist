@@ -305,9 +305,14 @@ export class SpotifyApiRepository implements SpotifyRepository {
   private async parseResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
       const message = await response.text();
+      let hint = "";
+      if (response.status === 403 && message.includes("Forbidden")) {
+        hint =
+          " (Posible causa: endpoint migrado Feb 2026 /tracks->/items o falta scope playlist-modify-public/playlist-modify-private. Haz logout y vuelve a iniciar sesión para obtener nuevo token con los scopes actualizados. Requiere cuenta Premium del owner y app en Development Mode con usuario añadido en Dashboard.)";
+      }
 
       throw new SpotifyApiError(
-        `Spotify request failed: ${message}`,
+        `Spotify request failed: ${message}${hint}`,
         response.status,
       );
     }
