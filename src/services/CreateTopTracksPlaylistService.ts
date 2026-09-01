@@ -42,7 +42,7 @@ export class CreateTopTracksPlaylistService {
     const playlist = await this.spotifyRepository.createPlaylist(
       accessToken,
       this.createPlaylistName(),
-      `Tus ${topTracks.items.length} canciones favoritas (${timeRange}). Generado con SpotifyMonthly.`,
+      `Tus ${topTracks.items.length} canciones favoritas. Generado con SpotifyMonthly.`,
     );
 
     await this.spotifyRepository.addTracksToPlaylist(

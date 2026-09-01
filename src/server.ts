@@ -241,7 +241,7 @@ app.get("/", (_req, res) => {
                                 const pl = json.data;
                                 showStatus("¡Playlist creada!", "success");
                                 const url = pl.spotifyUrl || ("https://open.spotify.com/playlist/" + encodeURIComponent(pl.id));
-                                playlistResult.innerHTML = '<h3>🎉 ' + escapeHtml(pl.name) + '</h3><p style="color:#b3b3b3">Playlist privada creada con ' + limit + ' canciones.</p><a class="button" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">Abrir en Spotify</a> <a class="button secondary" href="/success?playlist=' + encodeURIComponent(pl.id) + '">Ver detalle</a>';
+                                playlistResult.innerHTML = '<h3>🎉 ' + escapeHtml(pl.name) + '</h3><p style="color:#b3b3b3">Playlist privada creada con ' + limit + ' canciones.</p><a class="button" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">Abrir en Spotify</a>';
                                 playlistResult.classList.remove("hidden");
                             } catch (e) {
                                 showStatus(e.message || "Error inesperado", "error");
