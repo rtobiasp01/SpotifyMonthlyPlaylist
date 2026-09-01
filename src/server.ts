@@ -2,6 +2,7 @@ import "dotenv/config";
 
 import express from "express";
 import session from "express-session";
+import createMemoryStore from "memorystore";
 import swaggerUi from "swagger-ui-express";
 
 import { AuthController } from "./controllers/AuthController.js";
@@ -69,6 +70,8 @@ if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 
+const MemoryStore = createMemoryStore(session);
+
 app.use(
   session({
     name: "spotify.sid",
@@ -78,6 +81,10 @@ app.use(
     resave: false,
 
     saveUninitialized: false,
+
+    store: new MemoryStore({
+      checkPeriod: 1000 * 60 * 60, // prune cada hora
+    }),
 
     cookie: {
       httpOnly: true,
