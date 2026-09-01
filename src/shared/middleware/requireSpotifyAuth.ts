@@ -42,7 +42,7 @@ export function createRequireSpotifyAuth(
           throw new Error("Spotify token expiration is missing.");
         }
 
-        req.session.spotifyAccessToken = tokens.accesToken;
+        req.session.spotifyAccessToken = tokens.accessToken ?? tokens.accesToken;
 
         req.session.spotifyExpiresAt = Date.now() + tokens.expiresIn * 1000;
 

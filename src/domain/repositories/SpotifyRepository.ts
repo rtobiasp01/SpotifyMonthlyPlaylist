@@ -1,5 +1,7 @@
 import type { SpotifyAuthTokens } from "../models/SpotifyAuthTokens.js";
 
+import type { SpotifyPlaylist } from "../models/SpotifyPlaylist.js";
+
 import type {
   SpotifyTopTracks,
   SpotifyTopTracksQuery,
@@ -20,4 +22,16 @@ export interface SpotifyRepository {
     accessToken: string,
     query?: SpotifyTopTracksQuery,
   ): Promise<SpotifyTopTracks>;
+
+  createPlaylist(
+    accessToken: string,
+    name: string,
+    description: string,
+  ): Promise<SpotifyPlaylist>;
+
+  addTracksToPlaylist(
+    accessToken: string,
+    playlistId: string,
+    trackIds: string[],
+  ): Promise<void>;
 }

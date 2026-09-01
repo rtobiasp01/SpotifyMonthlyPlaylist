@@ -2,6 +2,8 @@ import type { RequestHandler } from "express";
 
 import type { SpotifyTimeRange } from "../domain/models/SpotifyTrack.js";
 
+import type { CreateTopTracksPlaylistService } from "../services/CreateTopTracksPlaylistService.js";
+
 import type { SpotifyUserService } from "../services/SpotifyUserService.js";
 
 import {
@@ -10,7 +12,10 @@ import {
 } from "../shared/errors/AppError.js";
 
 export class SpotifyController {
-  public constructor(private readonly spotifyUserService: SpotifyUserService) {}
+  public constructor(
+    private readonly spotifyUserService: SpotifyUserService,
+    private readonly createTopTracksPlaylistService: CreateTopTracksPlaylistService,
+  ) {}
 
   public me: RequestHandler = async (req, res, next): Promise<void> => {
     try {
@@ -47,6 +52,36 @@ export class SpotifyController {
     }
   };
 
+  public createTopPlaylist: RequestHandler = async (req, res, next): Promise<void> => {
+    try {
+      const accessToken = this.getAccessToken(req);
+
+      // Permite override via body o query, default 50 / short_term (top mensual)
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const rawLimit = body.limit ?? req.query.limit;
+      const rawTimeRange = body.timeRange ?? req.query.timeRange;
+
+      const limit = rawLimit === undefined ? 50 : this.parseLimit(rawLimit);
+      const timeRange = rawTimeRange === undefined ? "short_term" : this.parseTimeRange(rawTimeRange);
+
+      const playlist = await this.createTopTracksPlaylistService.execute(accessToken, {
+        limit,
+        timeRange,
+      });
+
+      // Guardar última playlist en sesión para /success
+      req.session.spotifyPlaylistId = playlist.id;
+      req.session.spotifyPlaylistUrl = playlist.spotifyUrl;
+      req.session.spotifyPlaylistName = playlist.name;
+
+      res.status(201).json({
+        data: playlist,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   private getAccessToken(req: Parameters<RequestHandler>[0]): string {
     const accessToken = req.session.spotifyAccessToken;
 
@@ -62,7 +97,8 @@ export class SpotifyController {
       return 10;
     }
 
-    if (typeof value !== "string") {
+    // Acepta string ("25") o number (25) para compatibilidad con JSON body
+    if (typeof value !== "string" && typeof value !== "number") {
       throw new BadRequestError("Invalid limit.");
     }
 

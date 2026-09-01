@@ -5,7 +5,9 @@ import type { SpotifyAuthService } from "../services/SpotifyAuthService.js";
 import { BadRequestError } from "../shared/errors/AppError.js";
 
 export class AuthController {
-  public constructor(private readonly spotifyAuthService: SpotifyAuthService) {}
+  public constructor(
+    private readonly spotifyAuthService: SpotifyAuthService,
+  ) {}
 
   public login: RequestHandler = (req, res, next): void => {
     try {
@@ -51,19 +53,25 @@ export class AuthController {
 
       const tokens = await this.spotifyAuthService.exchangeCode(code);
 
-      req.session.spotifyAccessToken = tokens.accesToken;
+      const accessToken = tokens.accessToken ?? tokens.accesToken;
+
+      if (!accessToken) {
+        throw new BadRequestError("Spotify access token missing.");
+      }
 
       if (typeof tokens.expiresIn !== "number") {
         throw new BadRequestError("Spotify token expiration missing.");
       }
 
+      req.session.spotifyAccessToken = accessToken;
       req.session.spotifyExpiresAt = Date.now() + tokens.expiresIn * 1000;
 
       if (tokens.refreshToken) {
         req.session.spotifyRefreshToken = tokens.refreshToken;
       }
 
-      res.redirect("/api/me");
+      // Ya no se crea la playlist automáticamente: el usuario la generará con el botón en la web "/"
+      res.redirect("/");
     } catch (error) {
       next(error);
     }

@@ -12,10 +12,11 @@ export interface SpotifyLogin {
 }
 
 export class SpotifyAuthService {
+  // Migración Feb 2026: añadir playlist-modify-public evita 403 en /playlists/{id}/items
   private readonly scopes = [
-    "user-read-private",
-    "user-read-email",
     "user-top-read",
+    "playlist-modify-private",
+    "playlist-modify-public",
   ];
 
   public constructor(private readonly spotifyRepository: SpotifyRepository) {}

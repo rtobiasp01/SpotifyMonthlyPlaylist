@@ -9,5 +9,11 @@ declare module "express-session" {
     spotifyRefreshToken?: string;
 
     spotifyExpiresAt?: number;
+
+    spotifyPlaylistId?: string;
+
+    spotifyPlaylistUrl?: string | null;
+
+    spotifyPlaylistName?: string;
   }
 }

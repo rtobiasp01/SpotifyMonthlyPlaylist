@@ -102,6 +102,15 @@ export const openapi = {
           spotifyUrl: { type: "string", format: "uri", nullable: true },
         },
       },
+      SpotifyPlaylist: {
+        type: "object",
+        required: ["id", "name", "spotifyUrl"],
+        properties: {
+          id: { type: "string" },
+          name: { type: "string" },
+          spotifyUrl: { type: "string", format: "uri", nullable: true },
+        },
+      },
       TopTracksResponse: {
         type: "object",
         required: ["data"],
@@ -119,6 +128,13 @@ export const openapi = {
               offset: { type: "integer" },
             },
           },
+        },
+      },
+      PlaylistResponse: {
+        type: "object",
+        required: ["data"],
+        properties: {
+          data: { $ref: "#/components/schemas/SpotifyPlaylist" },
         },
       },
     },
@@ -139,6 +155,7 @@ export const openapi = {
       get: {
         tags: ["Autenticacion"],
         summary: "Procesa el callback OAuth de Spotify",
+        description: "Intercambia el code por tokens y redirige a '/' donde el usuario puede generar la playlist manualmente.",
         parameters: [
           {
             name: "code",
@@ -161,7 +178,7 @@ export const openapi = {
         ],
         responses: {
           "302": {
-            description: "Redireccion a los datos del usuario autenticado.",
+            description: "Redireccion a '/' (home con botón Generar playlist).",
           },
           "400": {
             description: "Parametros OAuth invalidos.",
@@ -259,6 +276,68 @@ export const openapi = {
           },
           "401": {
             description: "Sesion de Spotify ausente o expirada.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/playlists/top-tracks": {
+      post: {
+        tags: ["Spotify"],
+        summary: "Crea playlist con tu top mensual (short_term por defecto)",
+        description: "Genera una playlist privada con tus canciones más escuchadas. Por defecto 50 canciones del último mes (short_term).",
+        security: [{ spotifySession: [] }],
+        requestBody: {
+          required: false,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  limit: { type: "integer", minimum: 1, maximum: 50, default: 50, description: "Cantidad de canciones" },
+                  timeRange: { type: "string", enum: ["short_term", "medium_term", "long_term"], default: "short_term" },
+                },
+              },
+            },
+          },
+        },
+        parameters: [
+          {
+            name: "limit",
+            in: "query",
+            required: false,
+            schema: { type: "integer", minimum: 1, maximum: 50, default: 50 },
+          },
+          {
+            name: "timeRange",
+            in: "query",
+            required: false,
+            schema: { type: "string", enum: ["short_term", "medium_term", "long_term"], default: "short_term" },
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Playlist creada.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/PlaylistResponse" },
+              },
+            },
+          },
+          "400": {
+            description: "Sin canciones para ese periodo o parámetros inválidos.",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+          "401": {
+            description: "Sesión expirada.",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/ErrorResponse" },
