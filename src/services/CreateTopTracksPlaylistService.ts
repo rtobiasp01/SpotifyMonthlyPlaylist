@@ -8,6 +8,8 @@ import type { SpotifyRepository } from "../domain/repositories/SpotifyRepository
 
 import { BadRequestError } from "../shared/errors/AppError.js";
 
+import type { PlaylistCoverService } from "./PlaylistCoverService.js";
+
 export interface CreateTopTracksPlaylistOptions {
   limit?: number;
   timeRange?: SpotifyTimeRange;
@@ -16,6 +18,7 @@ export interface CreateTopTracksPlaylistOptions {
 export class CreateTopTracksPlaylistService {
   public constructor(
     private readonly spotifyRepository: SpotifyRepository,
+    private readonly playlistCoverService?: PlaylistCoverService,
   ) {}
 
   public async execute(
@@ -47,6 +50,20 @@ export class CreateTopTracksPlaylistService {
       playlist.id,
       topTracks.items.map((track) => track.id),
     );
+
+    // Portada personalizada: no bloquear si falla (ej. falta scope ugc-image-upload)
+    if (this.playlistCoverService) {
+      try {
+        const base64 = await this.playlistCoverService.generate(new Date());
+        await this.spotifyRepository.uploadPlaylistCover(
+          accessToken,
+          playlist.id,
+          base64,
+        );
+      } catch (error) {
+        console.warn("No se pudo subir portada personalizada:", error);
+      }
+    }
 
     return playlist;
   }

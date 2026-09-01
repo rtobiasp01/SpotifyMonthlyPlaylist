@@ -34,4 +34,10 @@ export interface SpotifyRepository {
     playlistId: string,
     trackIds: string[],
   ): Promise<void>;
+
+  uploadPlaylistCover(
+    accessToken: string,
+    playlistId: string,
+    base64Jpeg: string,
+  ): Promise<void>;
 }

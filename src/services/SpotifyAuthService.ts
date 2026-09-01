@@ -12,11 +12,12 @@ export interface SpotifyLogin {
 }
 
 export class SpotifyAuthService {
-  // Migración Feb 2026: añadir playlist-modify-public evita 403 en /playlists/{id}/items
+  // Cover requiere ugc-image-upload; migración Feb 2026: /tracks -> /items
   private readonly scopes = [
     "user-top-read",
     "playlist-modify-private",
     "playlist-modify-public",
+    "ugc-image-upload",
   ];
 
   public constructor(private readonly spotifyRepository: SpotifyRepository) {}

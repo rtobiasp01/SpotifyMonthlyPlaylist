@@ -264,6 +264,37 @@ export class SpotifyApiRepository implements SpotifyRepository {
     }
   }
 
+  public async uploadPlaylistCover(
+    accessToken: string,
+    playlistId: string,
+    base64Jpeg: string,
+  ): Promise<void> {
+    const response = await fetch(
+      `${SpotifyApiRepository.API_URL}/playlists/${encodeURIComponent(playlistId)}/images`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "image/jpeg",
+        },
+        body: base64Jpeg,
+      },
+    );
+
+    if (!response.ok) {
+      const message = await response.text();
+      let hint = "";
+      if (response.status === 403) {
+        hint =
+          " (requiere scope ugc-image-upload. Haz logout/login de nuevo)";
+      }
+      throw new SpotifyApiError(
+        `Spotify upload cover failed: ${message}${hint}`,
+        response.status,
+      );
+    }
+  }
+
   private async spotifyGet<T>(
     endpoint: string,
     accessToken: string,

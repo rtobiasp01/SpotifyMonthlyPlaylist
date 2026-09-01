@@ -15,6 +15,8 @@ import { SpotifyApiRepository } from "./infrastructure/repositories/SpotifyApiRe
 
 import { CreateTopTracksPlaylistService } from "./services/CreateTopTracksPlaylistService.js";
 
+import { PlaylistCoverService } from "./services/PlaylistCoverService.js";
+
 import { SpotifyAuthService } from "./services/SpotifyAuthService.js";
 
 import { SpotifyUserService } from "./services/SpotifyUserService.js";
@@ -47,8 +49,11 @@ const spotifyAuthService = new SpotifyAuthService(spotifyRepository);
 
 const spotifyUserService = new SpotifyUserService(spotifyRepository);
 
+const playlistCoverService = new PlaylistCoverService();
+
 const createTopTracksPlaylistService = new CreateTopTracksPlaylistService(
   spotifyRepository,
+  playlistCoverService,
 );
 
 const authController = new AuthController(spotifyAuthService);
