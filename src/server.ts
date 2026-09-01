@@ -103,6 +103,16 @@ app.use(
   }),
 );
 
+const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0f0c29"/><stop offset="55%" stop-color="#302b63"/><stop offset="100%" stop-color="#1DB954"/></linearGradient></defs><rect width="32" height="32" rx="7" fill="url(#g)"/><text x="16" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="900" fill="white">♪</text></svg>`;
+
+app.get("/favicon.svg", (_req, res) => {
+  res.type("image/svg+xml").setHeader("Cache-Control", "public, max-age=86400").send(faviconSvg);
+});
+
+app.get("/favicon.ico", (_req, res) => {
+  res.type("image/svg+xml").setHeader("Cache-Control", "public, max-age=86400").send(faviconSvg);
+});
+
 app.get("/", (_req, res) => {
   res.type("html").send(`
             <!doctype html>
@@ -110,6 +120,8 @@ app.get("/", (_req, res) => {
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+                    <link rel="alternate icon" href="/favicon.ico">
                     <title>SpotifyMonthly - Tu top mensual</title>
                     <style>
                         * { box-sizing: border-box; }
